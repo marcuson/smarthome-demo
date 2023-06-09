@@ -1,0 +1,80 @@
+{
+	"info": {
+		"_postman_id": "89c451ec-6241-48c1-b1fc-e6ee36b2563a",
+		"name": "Smarthome demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1045605"
+	},
+	"item": [
+		{
+			"name": "Get led state",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{deviceUrl}}/state",
+					"host": [
+						"{{deviceUrl}}"
+					],
+					"path": [
+						"state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change led state",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"state\": \"on\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{deviceUrl}}/control",
+					"host": [
+						"{{deviceUrl}}"
+					],
+					"path": [
+						"control"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "deviceUrl",
+			"value": "http://192.168.45.149",
+			"type": "string"
+		}
+	]
+}
