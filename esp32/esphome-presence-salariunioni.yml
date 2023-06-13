@@ -1,0 +1,112 @@
+substitutions:
+  name_dash: presence-salariunioni
+  name_underscore: presence_salariunioni
+  room: salariunioni
+
+ota:
+  password: "f53cedf1a6fd5bbe8b18d0e1a0286f7d"
+
+esphome:
+  name: ${name_dash}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  reboot_timeout: 
+    minutes: 15
+  ap:
+    ssid: "${name_dash}"
+    password: "kfDiN9qGQr1P"
+
+mqtt:
+  broker: !secret mqtt_broker
+  port: !secret mqtt_port
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  discovery_object_id_generator: device_name
+  discovery_unique_id_generator: mac
+
+globals:
+  - id: env_factor
+    type: float
+    restore_value: yes
+    initial_value: '0.4'
+
+esp32_ble_tracker:
+  scan_parameters:
+    interval: 1s
+    continuous: True
+    window: 1s
+    duration: 3s
+
+sensor:
+  - platform: ble_rssi
+    id: "${name_underscore}_beacon_potenza_segnale"
+    ibeacon_uuid: !secret ibeacon_uuid
+    ibeacon_major: 100
+    ibeacon_minor: 1
+    internal: true
+    name: "Beacon - Potenza segnale"
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: ${name_underscore}_beacon_distanza
+            state: !lambda return pow(10, (-75 - id(${name_underscore}_beacon_potenza_segnale).state) / 10 * id(env_factor));
+  - platform: template
+    id: ${name_underscore}_beacon_distanza
+    unit_of_measurement: m
+    name: "Beacon - Distanza"
+
+  - platform: kalman_combinator
+    name: "Beacon - Distanza (Kalman)"
+    id: ${name_underscore}_beacon_distanza_kalman
+    process_std_dev: 0.2
+    sources:
+      - source: ${name_underscore}_beacon_distanza
+        error: 1
+    on_value:
+      then:
+        - mqtt.publish_json:
+            topic: myroomtracker/beacon/${room}
+            payload: |-
+              root["id"] = "beacon";
+              root["name"] = "Beacon";
+              root["distance"] = id(${name_underscore}_beacon_distanza_kalman).state;
+  - platform: wifi_signal
+    name: "Segnale WiFi dB"
+    id: wifi_signal_db
+    update_interval: 10s
+    entity_category: "diagnostic"
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "Segnale WiFi %"
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    entity_category: "diagnostic"
+
+number:
+  - platform: template
+    id: ${name_underscore}_fattore_ambiente
+    name: "Fattore ambiente"
+    min_value: 0.1
+    max_value: 4
+    step: 0.1
+    optimistic: True
+    restore_value: True
+    on_value: 
+      then:
+        - globals.set: 
+            id: env_factor
+            value: !lambda return x;
+
+switch:
+  - platform: restart
+    name: "Riavvia"
