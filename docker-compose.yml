@@ -31,3 +31,12 @@ services:
       - "8123:8123"
     volumes:
       - "./data/hass/config:/config"
+
+#  esphome:
+#    image: esphome/esphome
+#    volumes:
+#      - "./data/esphome/config:/config"
+#      - "/etc/localtime:/etc/localtime:ro"
+#    restart: unless-stopped
+#    privileged: true
+#    network_mode: host
