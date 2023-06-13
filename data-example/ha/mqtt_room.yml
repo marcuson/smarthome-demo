@@ -1,0 +1,8 @@
+# to be included into configuration.yaml file
+sensor:
+  - platform: mqtt_room
+    device_id: "beacon"
+    name: "Beacon"
+    state_topic: 'myroomtracker/beacon'
+    timeout: 8
+    away_timeout: 10
