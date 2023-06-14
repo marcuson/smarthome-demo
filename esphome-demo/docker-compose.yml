@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  esphome:
+    image: esphome/esphome
+    volumes:
+      - "./data/esphome/config:/config"
+      - "/etc/localtime:/etc/localtime:ro"
+    restart: unless-stopped
+    privileged: true
+    ports:
+     - "6052:6052"
+    environment:
+     - ESPHOME_DASHBOARD_USE_PING=true
+#    network_mode: host
