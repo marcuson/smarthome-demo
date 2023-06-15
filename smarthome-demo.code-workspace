@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "esp8266"
+		}
+	],
+	"settings": {}
+}
